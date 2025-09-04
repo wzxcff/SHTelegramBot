@@ -30,6 +30,7 @@ class Schedule(Base):
     hidden = Column(Boolean, nullable=False, default=False)
     start_time = Column(DateTime, nullable=True)
     end_time = Column(DateTime, nullable=True)
+    link = Column(String, nullable=True)
 
     attendances = relationship("Attendance", back_populates="subject")
 

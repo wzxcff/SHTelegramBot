@@ -8,16 +8,21 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(BIGINT, primary_key=True, index=True)
-    user_id = Column(Integer, unique=True, nullable=False)
+    user_id = Column(BIGINT, unique=True, nullable=False)
     username = Column(String, nullable=True)
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
 
     added_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
 
+    attendances = relationship("Attendance", back_populates="user")
+    alerts = relationship("Alert", back_populates="user")
+    whitelists = relationship("Whitelist", back_populates="user")
+
 
 class Schedule(Base):
-    __tablename__ = 'schedule'
+    __tablename__ = 'schedules'
+
     id = Column(BIGINT, primary_key=True, index=True)
     title = Column(String, nullable=False)
     description = Column(String, nullable=True)
@@ -25,6 +30,8 @@ class Schedule(Base):
     hidden = Column(Boolean, nullable=False, default=False)
     start_time = Column(DateTime, nullable=True)
     end_time = Column(DateTime, nullable=True)
+
+    attendances = relationship("Attendance", back_populates="subject")
 
 
 class Deadline(Base):
@@ -39,17 +46,20 @@ class Deadline(Base):
 
 
 class Attendance(Base):
-    __tablename__ = 'attendance'
+    __tablename__ = 'attendances'
 
     id = Column(BIGINT, primary_key=True, index=True)
-    user = relationship('User', back_populates='attendances')
-    subject = relationship('schedule', back_populates='schedules')
+    user_id = Column(BIGINT, ForeignKey('users.id'), nullable=False)
+    schedule_id = Column(BIGINT, ForeignKey('schedules.id'), nullable=False)
 
     added_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
 
+    user = relationship("User", back_populates="attendances")
+    subject = relationship("Schedule", back_populates="attendances")
+
 
 class Alert(Base):
-    __tablename__ = 'alert'
+    __tablename__ = 'alerts'
 
     id = Column(BIGINT, primary_key=True, index=True)
     text = Column(String, nullable=False)
@@ -61,6 +71,7 @@ class Whitelist(Base):
     __tablename__ = 'whitelist'
 
     id = Column(BIGINT, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    user_id = Column(BIGINT, ForeignKey('users.id'), nullable=False)
+    user = relationship("User", back_populates="whitelists")
 
 

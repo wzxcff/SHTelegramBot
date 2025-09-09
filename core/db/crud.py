@@ -28,11 +28,11 @@ def get_user_by_user_id(user_id: int) -> User:
 # CRUD for managing schedule
 
 
-def add_new_to_schedule(title: str, description: str, day: str, start_time: str, end_time: str, link: str = None, hidden: bool = False) -> Schedule:
+def add_new_to_schedule(title: str, description: str, day: str, lesson_type: str, start_time: str, end_time: str, link: str = None, hidden: bool = False) -> Schedule:
     session = get_session()
     start_time = datetime.datetime.strptime(start_time, "%H:%M")
     end_time = datetime.datetime.strptime(end_time, "%H:%M")
-    subject = Schedule(title=title, description=description, day=day, start_time=start_time, end_time=end_time, link=link, hidden=hidden)
+    subject = Schedule(title=title, description=description, day=day, lesson_type=lesson_type, start_time=start_time, end_time=end_time, link=link, hidden=hidden)
     session.add(subject)
     session.commit()
     session.refresh(subject)
@@ -50,7 +50,33 @@ def get_subject_by_id(subject_id: int) -> Schedule:
 def get_subjects_by_day(day: str) -> list:
     session = get_session()
     schedule = session.query(Schedule).filter(Schedule.day == day).all()
+    session.close()
     return schedule
+
+
+def get_schedule() -> list:
+    session = get_session()
+    schedule = session.query(Schedule).all()
+    session.close()
+    return schedule
+
+
+def remove_subject_by_start_time_and_day(start_time: str, day: str) -> bool:
+    session = get_session()
+    start_time = datetime.datetime.strptime(start_time, "%H:%M")
+    try:
+        subject_to_remove = session.query(Schedule).filter(Schedule.start_time == start_time, Schedule.day == day).all()
+
+        for subject in subject_to_remove:
+            session.delete(subject)
+
+        session.commit()
+        return True
+    except Exception as e:
+        session.rollback()
+        return False
+    finally:
+        session.close()
 
 
 # CRUD for managing deadlines
@@ -65,5 +91,15 @@ def add_new_deadline(name: str, description: str, end_date: str) -> Deadline:
     session.refresh(deadline)
     session.close()
     return deadline
+
+
+def get_deadlines_by_end_date(end_date: str) -> list:
+    session = get_session()
+    end_date = datetime.datetime.strptime(end_date, "%d.%m.%y %H:%M")
+    deadlines = session.query(Deadline).filter(Deadline.ending_date == end_date).all()
+    session.close()
+    return deadlines
+
+
 
 

@@ -27,6 +27,7 @@ class Schedule(Base):
     title = Column(String, nullable=False)
     description = Column(String, nullable=True)
     day = Column(String, nullable=False)
+    lesson_type = Column(String, nullable=False)
     hidden = Column(Boolean, nullable=False, default=False)
     start_time = Column(DateTime, nullable=True)
     end_time = Column(DateTime, nullable=True)

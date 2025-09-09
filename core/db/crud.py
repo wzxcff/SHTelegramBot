@@ -6,6 +6,20 @@ import datetime
 def get_session():
     return SessionLocal()
 
+
+def safe_remove(objects: iter, session: SessionLocal) -> bool:
+    try:
+        for entry in objects:
+            session.delete(entry)
+
+        session.commit()
+        return True
+    except Exception as e:
+        session.rollback()
+        return False
+    finally:
+        session.close()
+
 # CRUD for managing users
 
 
@@ -64,19 +78,9 @@ def get_schedule() -> list:
 def remove_subject_by_start_time_and_day(start_time: str, day: str) -> bool:
     session = get_session()
     start_time = datetime.datetime.strptime(start_time, "%H:%M")
-    try:
-        subject_to_remove = session.query(Schedule).filter(Schedule.start_time == start_time, Schedule.day == day).all()
+    subject_to_remove = session.query(Schedule).filter(Schedule.start_time == start_time, Schedule.day == day).all()
 
-        for subject in subject_to_remove:
-            session.delete(subject)
-
-        session.commit()
-        return True
-    except Exception as e:
-        session.rollback()
-        return False
-    finally:
-        session.close()
+    return safe_remove(subject_to_remove, session)
 
 
 # CRUD for managing deadlines
@@ -101,5 +105,11 @@ def get_deadlines_by_end_date(end_date: str) -> list:
     return deadlines
 
 
+def remove_deadlines_by_name_and_end_date(name: str, end_date: str) -> bool:
+    session = get_session()
+    end_date = datetime.datetime.strptime(end_date, "%d.%m.%y %H:%M")
+    deadlines_to_remove = session.query(Deadline).filter(Deadline.event_name == name, Deadline.ending_date == end_date).all()
+
+    return safe_remove(deadlines_to_remove, session)
 
 

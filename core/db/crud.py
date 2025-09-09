@@ -39,6 +39,26 @@ def get_user_by_user_id(user_id: int) -> User:
     session.close()
     return user
 
+
+def increment_user_score(user_id: int, score: int) -> User:
+    session = get_session()
+    user = session.query(User).filter(User.user_id == user_id).first()
+    user.score += score
+    session.commit()
+    session.refresh(user)
+    session.close()
+    return user
+
+
+def decrement_user_score(user_id: int, score: int) -> User:
+    session = get_session()
+    user = session.query(User).filter(User.user_id == user_id).first()
+    user.score -= score
+    session.commit()
+    session.refresh(user)
+    session.close()
+    return user
+
 # CRUD for managing schedule
 
 

@@ -12,6 +12,7 @@ class User(Base):
     username = Column(String, nullable=True)
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
+    score = Column(Integer, nullable=False, default=0)
 
     added_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
 

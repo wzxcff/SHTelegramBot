@@ -8,7 +8,8 @@ load_dotenv()
 bot = telebot.TeleBot(os.getenv('TOKEN'))
 
 functions_map = {
-    "hello": hello_handler
+    "hello": hello_handler,
+    "start": start_handler,
 }
 
 

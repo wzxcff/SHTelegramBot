@@ -16,7 +16,6 @@ class User(Base):
     added_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
 
     attendances = relationship("Attendance", back_populates="user")
-    alerts = relationship("Alert", back_populates="user")
     whitelists = relationship("Whitelist", back_populates="user")
 
 

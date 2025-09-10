@@ -20,6 +20,17 @@ class User(Base):
     whitelists = relationship("Whitelist", back_populates="user")
 
 
+class Admin(Base):
+    __tablename__ = 'admins'
+
+    id = Column(BIGINT, primary_key=True, index=True)
+    user_id = Column(BIGINT, ForeignKey('users.id'), nullable=False)
+
+    user = relationship("User", back_populates="admins")
+
+    added_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
+
+
 class Schedule(Base):
     __tablename__ = 'schedules'
 

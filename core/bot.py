@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from handlers import *
 from time import time
+from keyboards import *
 
 load_dotenv()
 
@@ -16,6 +17,10 @@ functions_map = {
     "/start": start_handler,
 }
 
+keyboards_functions_map = {
+    "/start": main_keyboard_built,
+}
+
 
 @bot.message_handler(content_types=['text'])
 def message_handler(message):
@@ -23,7 +28,7 @@ def message_handler(message):
         bot.send_message(message.chat.id, "You're sending too much requests!")
         return
     try:
-        bot.send_message(message.chat.id, functions_map[str(message.text).lower()](message), parse_mode="HTML")
+        bot.send_message(message.chat.id, functions_map[str(message.text).lower()](message), parse_mode="HTML", reply_markup=keyboards_functions_map.get(str(message.text).lower(), None))
     except KeyError:
         bot.send_message(message.chat.id, "No function mapped to this word(s).")
     except Exception as e:

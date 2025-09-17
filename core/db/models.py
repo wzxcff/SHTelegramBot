@@ -1,5 +1,6 @@
 from sqlalchemy import Column, BIGINT, Integer, String, DateTime, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 import datetime
 from .base import Base
 
@@ -14,10 +15,11 @@ class User(Base):
     last_name = Column(String, nullable=True)
     score = Column(Integer, nullable=False, default=0)
 
-    added_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
+    added_at = Column(DateTime(timezone=True), server_default=func.now())
 
     attendances = relationship("Attendance", back_populates="user")
     whitelists = relationship("Whitelist", back_populates="user")
+    admins = relationship("Admin", back_populates="user")
 
 
 class Admin(Base):
@@ -28,22 +30,33 @@ class Admin(Base):
 
     user = relationship("User", back_populates="admins")
 
-    added_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
+    added_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class Schedule(Base):
     __tablename__ = 'schedules'
 
     id = Column(BIGINT, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    description = Column(String, nullable=True)
+    subject_id = Column(BIGINT, ForeignKey('subjects.id'), nullable=False)
+    subject = relationship("Subject", back_populates="schedule")
     day = Column(String, nullable=False)
+
+
+class Subject(Base):
+    __tablename__ = 'subjects'
+
+    id = Column(BIGINT, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    teacher = Column(String, nullable=False)
     lesson_type = Column(String, nullable=False)
-    hidden = Column(Boolean, nullable=False, default=False)
     start_time = Column(DateTime, nullable=True)
     end_time = Column(DateTime, nullable=True)
     link = Column(String, nullable=True)
+    hidden = Column(Boolean, nullable=False, default=False)
 
+    added_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    schedules = relationship("Schedule", back_populates="subject")
     attendances = relationship("Attendance", back_populates="subject")
 
 
@@ -55,7 +68,7 @@ class Deadline(Base):
     event_description = Column(String, nullable=True)
     ending_date = Column(DateTime, nullable=True)
 
-    added_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
+    added_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class Attendance(Base):
@@ -63,12 +76,12 @@ class Attendance(Base):
 
     id = Column(BIGINT, primary_key=True, index=True)
     user_id = Column(BIGINT, ForeignKey('users.id'), nullable=False)
-    schedule_id = Column(BIGINT, ForeignKey('schedules.id'), nullable=False)
+    subject_id = Column(BIGINT, ForeignKey('subjects.id'), nullable=False)
 
-    added_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
+    added_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="attendances")
-    subject = relationship("Schedule", back_populates="attendances")
+    subject = relationship("Subject", back_populates="attendances")
 
 
 class Alert(Base):
@@ -77,7 +90,7 @@ class Alert(Base):
     id = Column(BIGINT, primary_key=True, index=True)
     text = Column(String, nullable=False)
 
-    added_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
+    added_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class Whitelist(Base):

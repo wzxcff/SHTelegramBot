@@ -1,5 +1,5 @@
 from .base import SessionLocal
-from .models import User, Schedule, Deadline, Attendance
+from .models import User, Schedule, Deadline, Attendance, Subject
 import datetime
 
 
@@ -59,14 +59,22 @@ def decrement_user_score(user_id: int, score: int) -> User:
     session.close()
     return user
 
-# CRUD for managing schedule
+
+# CRUD Subjects
 
 
-def add_new_to_schedule(title: str, description: str, day: str, lesson_type: str, start_time: str, end_time: str, link: str = None, hidden: bool = False) -> Schedule:
+def get_subject_by_id(subject_id: int) -> Subject:
+    session = get_session()
+    subject = session.query(Subject).filter(Subject.id == subject_id).first()
+    session.close()
+    return subject
+
+
+def create_new_subject(name: str, teacher: str, lesson_type: str, start_time: str, end_time: str, link: str, hidden: bool = False) -> Subject:
     session = get_session()
     start_time = datetime.datetime.strptime(start_time, "%H:%M")
     end_time = datetime.datetime.strptime(end_time, "%H:%M")
-    subject = Schedule(title=title, description=description, day=day, lesson_type=lesson_type, start_time=start_time, end_time=end_time, link=link, hidden=hidden)
+    subject = Subject(name=name, teacher=teacher, lesson_type=lesson_type, start_time=start_time, end_time=end_time, link=link, hidden=hidden)
     session.add(subject)
     session.commit()
     session.refresh(subject)
@@ -74,62 +82,60 @@ def add_new_to_schedule(title: str, description: str, day: str, lesson_type: str
     return subject
 
 
-def get_subject_by_id(subject_id: int) -> Schedule:
+def edit_subject_by_id(subject_id: int, name: str, teacher: str, lesson_type: str, start_time: str, end_time: str, link: str, hidden: bool = False) -> Subject:
     session = get_session()
-    subject = session.query(Schedule).filter(Schedule.id == subject_id).first()
+    subject = session.query(Subject).filter(Subject.id == subject_id).first()
+    subject.name = name
+    subject.teacher = teacher
+    subject.lesson_type = lesson_type
+    subject.start_time = datetime.datetime.strptime(start_time, "%H:%M")
+    subject.end_time = datetime.datetime.strptime(end_time, "%H:%M")
+    subject.link = link
+    subject.hidden = hidden
+    session.commit()
+    session.refresh(subject)
     session.close()
     return subject
 
 
-def get_subjects_by_day(day: str) -> list:
+def visibility_change_by_subject_id(subject_id: int, hidden: bool = False) -> Subject:
     session = get_session()
-    schedule = session.query(Schedule).filter(Schedule.day == day).all()
-    session.close()
-    return schedule
-
-
-def get_schedule() -> list:
-    session = get_session()
-    schedule = session.query(Schedule).all()
-    session.close()
-    return schedule
-
-
-def remove_subject_by_start_time_and_day(start_time: str, day: str) -> bool:
-    session = get_session()
-    start_time = datetime.datetime.strptime(start_time, "%H:%M")
-    subject_to_remove = session.query(Schedule).filter(Schedule.start_time == start_time, Schedule.day == day).all()
-
-    return safe_remove(subject_to_remove, session)
-
-
-# CRUD for managing deadlines
-
-
-def add_new_deadline(name: str, description: str, end_date: str) -> Deadline:
-    session = get_session()
-    end_date = datetime.datetime.strptime(end_date, "%d.%m.%y %H:%M")
-    deadline = Deadline(event_name=name, event_description=description, ending_date=end_date)
-    session.add(deadline)
+    subject = session.query(Subject).filter(Subject.id == subject_id).first()
+    subject.hidden = hidden
     session.commit()
-    session.refresh(deadline)
+    session.refresh(subject)
     session.close()
-    return deadline
+    return subject
 
 
-def get_deadlines_by_end_date(end_date: str) -> list:
+def delete_subject_by_id(subject_id: int) -> bool:
     session = get_session()
-    end_date = datetime.datetime.strptime(end_date, "%d.%m.%y %H:%M")
-    deadlines = session.query(Deadline).filter(Deadline.ending_date == end_date).all()
+    subject = session.query(Subject).filter(Subject.id == subject_id).first()
+    return safe_remove(subject, session)
+
+
+# CRUD Schedule
+
+
+def get_schedule_by_day(day: str) -> Schedule:
+    session = get_session()
+    schedule_for_day = session.query(Schedule).filter(Schedule.day == day).all()
     session.close()
-    return deadlines
+    return schedule_for_day
 
 
-def remove_deadlines_by_name_and_end_date(name: str, end_date: str) -> bool:
+def add_subject_to_schedule(subject_id: int, day: str) -> Schedule:
     session = get_session()
-    end_date = datetime.datetime.strptime(end_date, "%d.%m.%y %H:%M")
-    deadlines_to_remove = session.query(Deadline).filter(Deadline.event_name == name, Deadline.ending_date == end_date).all()
+    schedule = Schedule(subject_id=subject_id, day=day)
+    session.add(schedule)
+    session.commit()
+    session.refresh(schedule)
+    session.close()
+    return schedule
 
-    return safe_remove(deadlines_to_remove, session)
 
+def delete_schedule_by_day_and_subject_id(day: str, subject_id: int) -> bool:
+    session = get_session()
+    schedule = session.query(Schedule).filter(Schedule.day == day, Subject.id == subject_id).all()
+    return safe_remove(schedule, session)
 

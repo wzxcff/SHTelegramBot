@@ -1,7 +1,6 @@
-from sqlalchemy import Column, BIGINT, Integer, String, DateTime, ForeignKey, Text, Boolean
+from sqlalchemy import Column, BIGINT, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import datetime
 from .base import Base
 
 

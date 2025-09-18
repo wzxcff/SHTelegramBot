@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 from handlers import *
 from time import time
-from keyboards import *
 
 load_dotenv()
 
@@ -19,16 +18,10 @@ functions_map = {
     "адмін": admin_keyboard_handler,
     "стати адміном": get_admin_handler,
     "на головну": to_main_menu_handler,
-    "редагувати розклад": edit_schedule_handler,
+    "редагувати": what_to_edit_handler,
     "до адмін панелі": to_admin_panel_handler,
-}
-
-keyboards_functions_map = {
-    "/start": main_keyboard_built,
-    "адмін": admin_keyboard_built,
-    "на головну": main_keyboard_built,
-    "редагувати розклад": edit_schedule_built,
-    "до адмін панелі": admin_keyboard_built,
+    "редагувати дисципліну": edit_lesson_handler,
+    "редагувати розклад": edit_schedule_handler,
 }
 
 
@@ -38,7 +31,8 @@ def message_handler(message):
         bot.send_message(message.chat.id, "You're sending too much requests!")
         return
     try:
-        bot.send_message(message.chat.id, functions_map[str(message.text).lower()](message), parse_mode="HTML", reply_markup=keyboards_functions_map.get(str(message.text).lower(), None))
+        call = functions_map[str(message.text).lower()](message)
+        bot.send_message(message.chat.id, call[0], parse_mode="HTML", reply_markup=call[1])
     except KeyError:
         bot.send_message(message.chat.id, "No function mapped to this word(s).")
     except Exception as e:

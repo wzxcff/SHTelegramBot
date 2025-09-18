@@ -13,8 +13,11 @@ def reply_markup_builder(labels: iter, row_size: int = 2, resize: bool = True) -
 main_keyboard_labels = ["Розклад", "Розклад на тиждень", "Відмітка", "Дедлайни", "Scoreboard", "Адмін"]
 main_keyboard_built = reply_markup_builder(main_keyboard_labels, 2)
 
-admin_keyboard_labels = ["Редагувати розклад", "Подивитись відмітки", "Керування дедлайнами", "На головну"]
+admin_keyboard_labels = ["Редагувати", "Подивитись відмітки", "Керування дедлайнами", "На головну"]
 admin_keyboard_built = reply_markup_builder(admin_keyboard_labels, 2)
 
 edit_schedule_labels = ["Понеділок", "Вівторок", "Четвер", "Середа", "Пʼятниця", "Субота", "До адмін панелі"]
 edit_schedule_built = reply_markup_builder(edit_schedule_labels, 2)
+
+edit_schedule_detailed_labels = ["Редагувати дисципліну", "Редагувати розклад", "До адмін панелі"]
+edit_schedule_detailed_built = reply_markup_builder(edit_schedule_detailed_labels, 2)

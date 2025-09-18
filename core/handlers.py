@@ -2,7 +2,14 @@ from db import *
 import datetime
 from keyboards import *
 
-not_admin_text = "Ви не є адміністратором!"
+
+def admin_only_handler(func):
+    def wrapper(*args, **kwargs):
+        print(f"ARGS: {args}, {kwargs}")
+        if is_user_admin(args[0].from_user.id):
+            return func(*args, **kwargs)
+        return "Ви не є адміністратором!", None
+    return wrapper
 
 
 def hello_handler(message):
@@ -22,10 +29,9 @@ def schedule_today_handler(message):
     return get_schedule_by_day(str(today))
 
 
+@admin_only_handler
 def admin_keyboard_handler(message):
-    if is_user_admin(message.from_user.id):
-        return "Адмін панель надано", admin_keyboard_built
-    return not_admin_text, None
+    return "Адмін панель надано", admin_keyboard_built
 
 
 def get_admin_handler(message):
@@ -36,23 +42,21 @@ def to_main_menu_handler(message):
     return "Повертаю Вас на головне меню!", main_keyboard_built
 
 
+@admin_only_handler
 def what_to_edit_handler(message):
     return f"{message.from_user.first_name}, що саме хочете редагувати?", edit_schedule_detailed_built
 
 
+@admin_only_handler
 def edit_lesson_handler(message):
-    if is_user_admin(message.from_user.id):
-        return f"Наразі функція недоступна", None
-    return not_admin_text, None
+    return f"Наразі функція недоступна", None
 
 
+@admin_only_handler
 def edit_schedule_handler(message):
-    if is_user_admin(message.from_user.id):
-        return f"Наразі функція недоступна", None
-    return not_admin_text, None
+    return f"Наразі функція недоступна", None
 
 
+@admin_only_handler
 def to_admin_panel_handler(message):
-    if is_user_admin(message.from_user.id):
-        return "Повертаю Вас до адмін панелі!", admin_keyboard_built
-    return not_admin_text, None
+    return "Повертаю Вас до адмін панелі!", admin_keyboard_built

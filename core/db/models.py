@@ -33,30 +33,29 @@ class Admin(Base):
 
 
 class Schedule(Base):
-    __tablename__ = 'schedules'
+    __tablename__ = "schedules"
 
     id = Column(BIGINT, primary_key=True, index=True)
-    subject_id = Column(BIGINT, ForeignKey('subjects.id'), nullable=False)
-    subject = relationship("Subject", back_populates="schedule")
+    subject_id = Column(BIGINT, ForeignKey("subjects.id"), nullable=False)
     day = Column(String, nullable=False)
+    start_time = Column(DateTime, nullable=True)
+    end_time = Column(DateTime, nullable=True)
+    hidden = Column(Boolean, nullable=False, default=False)
+
+    subject = relationship("Subject", back_populates="schedules")
+    attendances = relationship("Attendance", back_populates="schedule")
 
 
 class Subject(Base):
-    __tablename__ = 'subjects'
+    __tablename__ = "subjects"
 
     id = Column(BIGINT, primary_key=True, index=True)
     name = Column(String, nullable=False)
     teacher = Column(String, nullable=False)
     lesson_type = Column(String, nullable=False)
-    start_time = Column(DateTime, nullable=True)
-    end_time = Column(DateTime, nullable=True)
     link = Column(String, nullable=True)
-    hidden = Column(Boolean, nullable=False, default=False)
-
-    added_at = Column(DateTime(timezone=True), server_default=func.now())
 
     schedules = relationship("Schedule", back_populates="subject")
-    attendances = relationship("Attendance", back_populates="subject")
 
 
 class Deadline(Base):
@@ -70,17 +69,18 @@ class Deadline(Base):
     added_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
+
 class Attendance(Base):
-    __tablename__ = 'attendances'
+    __tablename__ = "attendances"
 
     id = Column(BIGINT, primary_key=True, index=True)
-    user_id = Column(BIGINT, ForeignKey('users.id'), nullable=False)
-    subject_id = Column(BIGINT, ForeignKey('subjects.id'), nullable=False)
+    user_id = Column(BIGINT, ForeignKey("users.id"), nullable=False)
+    schedule_id = Column(BIGINT, ForeignKey("schedules.id"), nullable=False)
 
     added_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="attendances")
-    subject = relationship("Subject", back_populates="attendances")
+    schedule = relationship("Schedule", back_populates="attendances")
 
 
 class Alert(Base):

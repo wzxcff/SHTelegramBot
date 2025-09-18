@@ -15,10 +15,20 @@ MESSAGE_RATE_SECONDS = 1
 functions_map = {
     "hello": hello_handler,
     "/start": start_handler,
+    "розклад": schedule_today_handler,
+    "адмін": admin_keyboard_handler,
+    "стати адміном": get_admin_handler,
+    "на головну": to_main_menu_handler,
+    "редагувати розклад": edit_schedule_handler,
+    "до адмін панелі": to_admin_panel_handler,
 }
 
 keyboards_functions_map = {
     "/start": main_keyboard_built,
+    "адмін": admin_keyboard_built,
+    "на головну": main_keyboard_built,
+    "редагувати розклад": edit_schedule_built,
+    "до адмін панелі": admin_keyboard_built,
 }
 
 

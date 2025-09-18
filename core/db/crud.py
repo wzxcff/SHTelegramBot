@@ -1,5 +1,5 @@
 from .base import SessionLocal
-from .models import User, Schedule, Deadline, Attendance, Subject
+from .models import User, Schedule, Deadline, Attendance, Subject, Admin
 import datetime
 
 
@@ -59,6 +59,16 @@ def decrement_user_score(user_id: int, score: int) -> User:
     session.close()
     return user
 
+
+def add_admin(user_id: int) -> bool:
+    session = get_session()
+    user = session.query(User).filter(User.user_id == user_id).first()
+    admin = Admin(user_id=user.id)
+    session.add(admin)
+    session.commit()
+    session.refresh(admin)
+    session.close()
+    return True
 
 # CRUD Subjects
 
@@ -139,3 +149,12 @@ def delete_schedule_by_day_and_subject_id(day: str, subject_id: int) -> bool:
     schedule = session.query(Schedule).filter(Schedule.day == day, Subject.id == subject_id).all()
     return safe_remove(schedule, session)
 
+
+def is_user_admin(user_id: int) -> bool:
+    session = get_session()
+    user = get_user_by_user_id(user_id)
+    admin = session.query(Admin).filter(Admin.user_id == user.id).first()
+    session.close()
+    if admin:
+        return True
+    return False
